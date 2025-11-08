@@ -1,0 +1,84 @@
+# ============================================================
+# Ignore everything by default
+# ============================================================
+/*
+!/rtl/
+!/tb/
+!/sim/
+!/.gitignore
+!README.md
+
+# ============================================================
+# Inside rtl folder - only keep .sv files
+# ============================================================
+rtl/**/*
+!rtl/*.sv
+!rtl/**/
+
+# ============================================================
+# Inside tb folder - only keep .sv files
+# ============================================================
+
+# ============================================================
+# Inside sim folder - only keep Makefile and compile.f
+# ============================================================
+sim/**/*
+!sim/Makefile
+!sim/compile.f
+!sim/**/
+
+# ============================================================
+# Ignore all build artifacts and generated files
+# ============================================================
+*.log
+*.jou
+*.rpt
+*.txt~
+*.swp
+*.bak
+*.orig
+*.tmp
+*.vcd
+*.wlf
+*.sdf
+*.smsg
+*.mti
+*.ini
+*.tcl.history
+*.dat
+*.csv
+*.out
+*.map
+*.elf
+*.pdf
+*.sdc
+*.sof
+*.pof
+*.jic
+*.hex
+*.rpd
+*.qws
+*.db
+*.ddb
+*.cmp
+*.pin
+*.qmsg
+*.eqn
+*.qar
+*.key
+*.log.*
+*.fsdb
+*.shm
+*.svf
+
+*.bak
+*.vpd
+*.DS_Store
+*.pyc
+__pycache__/
+.idea/
+.vscode/
+.cache/
+.env/
+work/
+build/
