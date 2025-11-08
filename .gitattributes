@@ -1,0 +1,26 @@
+# Default behavior: Auto-detect text files and normalize to LF
+* text=auto
+
+# TCL scripts should always use LF (for cross-platform compatibility)
+*.tcl text eol=lf
+*.sh text eol=lf
+
+# Windows batch files should use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# SystemVerilog files use LF
+*.sv text eol=lf
+*.v text eol=lf
+
+# Markdown and documentation
+*.md text eol=lf
+
+# Makefiles must use LF
+Makefile text eol=lf
+makefile text eol=lf
+
+# Binary files
+*.wlf binary
+*.ucdb binary
+*.vstf binary

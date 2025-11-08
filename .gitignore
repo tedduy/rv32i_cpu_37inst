@@ -1,32 +1,29 @@
 # ============================================================
-# Ignore everything by default
+# RV32I CPU Project - Git Ignore
 # ============================================================
-/*
-!/rtl/
-!/tb/
-!/sim/
-!/.gitignore
+
+# Keep source files and documentation
+!rtl/
+!tb/
+!docs/
+!sim/scripts/
 !README.md
+!Makefile
+!.gitignore
 
-# ============================================================
-# Inside rtl folder - only keep .sv files
-# ============================================================
-rtl/**/*
-!rtl/*.sv
-!rtl/**/
+# Keep all SystemVerilog files
+!**/*.sv
+!**/*.svh
 
-# ============================================================
-# Inside tb folder - only keep .sv files
-# ============================================================
+# Keep all documentation
+!**/*.md
 
-# ============================================================
-# Inside sim folder - only keep Makefile and compile.f
-# ============================================================
-sim/**/*
-!sim/Makefile
-!sim/compile.f
-!sim/**/
+# Keep simulation scripts
+!sim/scripts/*.sh
+!sim/scripts/*.f
+!sim/scripts/*.tcl
 
+/docs/
 # ============================================================
 # Ignore all build artifacts and generated files
 # ============================================================

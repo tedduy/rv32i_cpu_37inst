@@ -10,7 +10,8 @@ module tb_rv32i_top;
   localparam int IMEM_DEPTH   = 76;
   localparam int DMEM_BYTES   = 256;
   localparam int REG_DEPTH    = 32;
-	localparam int MAX_LOG_INST = 75;  // chỉ in đến [75]
+	localparam int MAX_LOG_INST = 34;  // Simple test: 35 instructions (0-34), stop after inst 33 completes WB
+	localparam int PIPELINE_DEPTH = 5;  // 5-stage pipeline
 
   // Kết thúc chương trình sau lệnh cuối (mỗi lệnh 4B)
   localparam int LAST_PC_AFTER = IMEM_DEPTH * 4; // = 304
@@ -310,6 +311,8 @@ module tb_rv32i_top;
   // -------------------------------
   // LOG ĐẦY ĐỦ 2 DÒNG / CYCLE (CÓ IN IMMEDIATE + JUMP TAG CÙNG DÒNG)
   // -------------------------------
+  int flush_cycles;  // Counter for pipeline flush after reaching MAX_LOG_INST
+  
   always @(posedge clk) begin
     if (!rst && !finish_req) begin
       // Dòng 1
@@ -326,11 +329,25 @@ module tb_rv32i_top;
                W_reg_write, W_mem_read, W_mem_write,
                W_branch_taken, W_jal, W_jalr,
                W_mem_addr, W_mem_wdata, W_mem_rdata);
-		  if (instruction_count == MAX_LOG_INST) begin
-      finish_req <= 1'b1;
-      $display("*** Stopping at instruction %0d (PC=%08h) ***", instruction_count, W_PC_out);
-      $finish;
-    end
+      
+      // Check if we've reached MAX_LOG_INST (instruction count at IF stage)
+      if (instruction_count == MAX_LOG_INST) begin
+        $display("*** Reached instruction %0d at IF stage (PC=%08h) ***", instruction_count, W_PC_out);
+        $display("*** Waiting %0d cycles for pipeline to flush... ***", PIPELINE_DEPTH + 1);
+        flush_cycles = 0;  // Start counting flush cycles
+      end
+      
+      // If we've started flushing, count down
+      if (instruction_count >= MAX_LOG_INST) begin
+        flush_cycles = flush_cycles + 1;
+        
+        // After waiting for pipeline to drain, finish simulation
+        if (flush_cycles >= (PIPELINE_DEPTH + 1)) begin
+          finish_req <= 1'b1;
+          $display("*** Pipeline flushed. Stopping simulation at T=%0t ***", $time);
+          $finish;
+        end
+      end
     end
   end
 
@@ -371,6 +388,7 @@ module tb_rv32i_top;
     prev_pc           = 32'd0;
     instruction_count = 32'd0;
     same_pc_count     = 8'd0;
+    flush_cycles      = 0;
 
     // Waveform
     $dumpfile("rv32i_tb.vcd");
