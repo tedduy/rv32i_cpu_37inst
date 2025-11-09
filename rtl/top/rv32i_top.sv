@@ -1,281 +1,523 @@
+// =============================================================================
+// RV32I 5-Stage Pipeline CPU Top Module
+// =============================================================================
+// Pipeline Stages:
+// 1. IF  (Instruction Fetch)
+// 2. ID  (Instruction Decode)
+// 3. EX  (Execute)
+// 4. MEM (Memory Access)
+// 5. WB  (Write Back)
+//
+// Features:
+// - Data forwarding (bypassing)
+// - Hazard detection and stalling
+// - Branch/Jump flushing
+// =============================================================================
+
 module rv32i_top #(
     parameter N = 32,
     parameter IMEM_DEPTH = 76,
-    parameter DMEM_BYTES = 256,   // <-- đổi: số BYTE cho data RAM
+    parameter DMEM_BYTES = 256,
     parameter REG_DEPTH = 32
 )(
     input  logic i_clk,
     input  logic i_arst_n,
     
-    // Debug/Test outputs for FPGA and testbench
-    output logic [N-1:0] W_PC_out,        // Current PC
-    output logic [N-1:0] instruction,     // Current instruction
-    output logic [N-1:0] W_RD1,           // Register rs1 data
-    output logic [N-1:0] W_RD2,           // Register rs2 data
-    output logic [N-1:0] W_m1,            // ALU operand B (after mux)
-    output logic [N-1:0] W_m2,            // Branch target address
-    output logic [N-1:0] W_ALUout,        // ALU result
-    
-    // Enhanced debug outputs
-    output logic [N-1:0] W_WB_data,       // Writeback data (to register file)
-    output logic [4:0]   W_rd_addr,       // Destination register address
-    output logic         W_reg_write,     // Register write enable
-    output logic         W_mem_write,     // Memory write enable
-    output logic         W_mem_read,      // Memory read enable
-    output logic         W_branch_taken,  // Branch taken flag
-    output logic [N-1:0] W_mem_addr,      // Memory address
-    output logic [N-1:0] W_mem_wdata,     // Memory write data
-    output logic [N-1:0] W_mem_rdata,     // Memory read data
-    output logic         W_jal,           // JAL instruction active
-    output logic         W_jalr           // JALR instruction active
+    // Debug/Test outputs
+    output logic [N-1:0] W_PC_out,
+    output logic [N-1:0] instruction,
+    output logic [N-1:0] W_RD1,
+    output logic [N-1:0] W_RD2,
+    output logic [N-1:0] W_m1,
+    output logic [N-1:0] W_m2,
+    output logic [N-1:0] W_ALUout,
+    output logic [N-1:0] W_WB_data,
+    output logic [4:0]   W_rd_addr,
+    output logic         W_reg_write,
+    output logic         W_mem_write,
+    output logic         W_mem_read,
+    output logic         W_branch_taken,
+    output logic [N-1:0] W_mem_addr,
+    output logic [N-1:0] W_mem_wdata,
+    output logic [N-1:0] W_mem_rdata,
+    output logic         W_jal,
+    output logic         W_jalr
 );
+
     // ==========================================================================
-    // Internal Signals
+    // IF Stage Signals
     // ==========================================================================
+    logic [N-1:0] if_pc_current, if_pc_next, if_pc_plus_4;
+    logic [N-1:0] if_instruction;
     
-    // PC signals
-    logic [N-1:0] pc_current, pc_next;
+    // ==========================================================================
+    // IF/ID Pipeline Register Signals
+    // ==========================================================================
+    logic [N-1:0] id_pc, id_instruction;
     
-    // Control signals
-    logic        reg_write, mem_read, mem_write;
-    logic [2:0]  imm_sel;
-    logic [1:0]  wb_sel, pc_sel;
-    logic        alu_src, alu_a_sel;
-    logic [3:0]  alu_ctrl;
-    logic        branch_en;
-    logic [2:0]  branch_type;
-    logic [2:0]  mem_type;
-    logic        jal, jalr;
+    // ==========================================================================
+    // ID Stage Signals
+    // ==========================================================================
+    logic [4:0]  id_rs1_addr, id_rs2_addr, id_rd_addr;
+    logic [N-1:0] id_rs1_data, id_rs2_data;
+    logic [N-1:0] id_immediate;
     
-    // Register file signals
-    logic [4:0]  rs1_addr, rs2_addr, rd_addr;
-    logic [N-1:0] rs1_data, rs2_data, rd_data;
+    // ID Control signals
+    logic        id_reg_write, id_mem_read, id_mem_write;
+    logic [2:0]  id_imm_sel;
+    logic [1:0]  id_wb_sel, id_pc_sel;
+    logic        id_alu_src, id_alu_a_sel;
+    logic [3:0]  id_alu_ctrl;
+    logic        id_branch_en;
+    logic [2:0]  id_branch_type;
+    logic [2:0]  id_mem_type;
+    logic        id_jal, id_jalr;
     
-    // Immediate generation
-    logic [N-1:0] immediate;
+    // ==========================================================================
+    // ID/EX Pipeline Register Signals
+    // ==========================================================================
+    logic [N-1:0] ex_pc, ex_rs1_data, ex_rs2_data, ex_immediate;
+    logic [4:0]   ex_rs1_addr, ex_rs2_addr, ex_rd_addr;
+    logic         ex_reg_write, ex_mem_read, ex_mem_write;
+    logic [1:0]   ex_wb_sel, ex_pc_sel;
+    logic         ex_alu_src, ex_alu_a_sel;
+    logic [3:0]   ex_alu_ctrl;
+    logic         ex_branch_en;
+    logic [2:0]   ex_branch_type, ex_mem_type;
+    logic         ex_jal, ex_jalr;
     
-    // ALU signals
-    logic [N-1:0] alu_operand_a, alu_operand_b;
-    logic [N-1:0] alu_result;
-    logic         alu_zero;
+    // ==========================================================================
+    // EX Stage Signals
+    // ==========================================================================
+    logic [N-1:0] ex_alu_operand_a, ex_alu_operand_b;
+    logic [N-1:0] ex_alu_operand_a_forwarded, ex_alu_operand_b_forwarded;
+    logic [N-1:0] ex_alu_result;
+    logic         ex_alu_zero;
+    logic [N-1:0] ex_pc_branch_target;
+    logic         ex_branch_taken;
+    logic [N-1:0] ex_jump_target, ex_return_addr;
+    logic [N-1:0] ex_rs2_data_forwarded;  // For store operations
     
-    // Branch signals
-    logic         branch_taken;
+    // ==========================================================================
+    // EX/MEM Pipeline Register Signals
+    // ==========================================================================
+    logic [N-1:0] mem_alu_result, mem_rs2_data;
+    logic [N-1:0] mem_pc_branch_target, mem_jump_target, mem_return_addr;
+    logic [N-1:0] mem_immediate;
+    logic [4:0]   mem_rd_addr;
+    logic         mem_branch_taken;
+    logic         mem_reg_write, mem_mem_read, mem_mem_write;
+    logic [1:0]   mem_wb_sel;
+    logic [2:0]   mem_mem_type;
     
-    // Jump signals
-    logic [N-1:0] jump_target, return_addr;
+    // ==========================================================================
+    // MEM Stage Signals
+    // ==========================================================================
+    logic [N-1:0] mem_read_data;
+    logic [N-1:0] mem_load_data, mem_store_data;
+    logic [3:0]   mem_byte_enable;
     
-    // Memory signals
-    logic [N-1:0] mem_read_data, mem_write_data;
-    logic [N-1:0] load_data, store_data;
-    logic [3:0]   byte_enable;
-    logic [N-1:0] mem_addr;
+    // ==========================================================================
+    // MEM/WB Pipeline Register Signals
+    // ==========================================================================
+    logic [N-1:0] wb_alu_result, wb_mem_read_data, wb_return_addr, wb_immediate;
+    logic [4:0]   wb_rd_addr;
+    logic         wb_reg_write;
+    logic [1:0]   wb_wb_sel;
     
-    // PC calculation signals
-    logic [N-1:0] pc_plus_4, pc_branch_target;
+    // ==========================================================================
+    // WB Stage Signals
+    // ==========================================================================
+    logic [N-1:0] wb_data;
+    
+    // ==========================================================================
+    // Hazard Detection Signals
+    // ==========================================================================
+    logic stall_pc, stall_if_id, flush_id_ex, flush_if_id;
+    
+    // ==========================================================================
+    // Forwarding Signals
+    // ==========================================================================
+    logic [1:0] forward_a, forward_b;
     
     // ==========================================================================
     // Debug Output Assignments
     // ==========================================================================
-    // Original debug signals
-    assign W_PC_out     = pc_current;
-    assign W_RD1        = rs1_data;
-    assign W_RD2        = rs2_data;
-    assign W_m1         = alu_operand_b;    // ALU operand B (immediate or rs2)
-    assign W_m2         = pc_branch_target; // Branch target
-    assign W_ALUout     = alu_result;
-    
-    // Enhanced debug signals
-    assign W_WB_data      = rd_data;        // Writeback data
-    assign W_rd_addr      = rd_addr;        // Destination register
-    assign W_reg_write    = reg_write;      // Register write enable
-    assign W_mem_write    = mem_write;      // Memory write enable
-    assign W_mem_read     = mem_read;       // Memory read enable
-    assign W_branch_taken = branch_taken;   // Branch taken
-    assign W_mem_addr     = mem_addr;       // Memory address
-    assign W_mem_wdata    = store_data;     // Memory write data
-    assign W_mem_rdata    = load_data;      // Memory read data (after load unit)
-    assign W_jal          = jal;            // JAL active
-    assign W_jalr         = jalr;           // JALR active
+    assign W_PC_out       = if_pc_current;
+    assign instruction    = if_instruction;
+    assign W_RD1          = id_rs1_data;
+    assign W_RD2          = id_rs2_data;
+    assign W_m1           = ex_alu_operand_b;
+    assign W_m2           = ex_pc_branch_target;
+    assign W_ALUout       = ex_alu_result;
+    assign W_WB_data      = wb_data;
+    assign W_rd_addr      = wb_rd_addr;
+    assign W_reg_write    = wb_reg_write;
+    assign W_mem_write    = mem_mem_write;
+    assign W_mem_read     = mem_mem_read;
+    assign W_branch_taken = ex_branch_taken;
+    assign W_mem_addr     = mem_alu_result;
+    assign W_mem_wdata    = mem_store_data;
+    assign W_mem_rdata    = mem_load_data;
+    assign W_jal          = ex_jal;
+    assign W_jalr         = ex_jalr;
     
     // ==========================================================================
-    // Instruction Decode
+    // STAGE 1: INSTRUCTION FETCH (IF)
     // ==========================================================================
-    assign rs1_addr = instruction[19:15];
-    assign rs2_addr = instruction[24:20];
-    assign rd_addr  = instruction[11:7];
     
-    // ==========================================================================
-    // Module Instantiations
-    // ==========================================================================
-	 
-	 adder_N_bit #(.N(N)) M1(
-		.a(pc_current),
-		.b(32'd4),
-		.sum(pc_plus_4)
-	 );
-	 
-	 adder_N_bit #(.N(N)) M2(
-		.a(pc_current),
-		.b(immediate),
-		.sum(pc_branch_target)
-	 );
+    // PC + 4 calculation
+    adder_N_bit #(.N(N)) if_pc_adder (
+        .a(if_pc_current),
+        .b(32'd4),
+        .sum(if_pc_plus_4)
+    );
     
-    // Program Counter
-    Program_Counter #(.N(N)) M3 (
+    // PC next selection (from EX stage for branches/jumps)
+    logic [31:0] branch_or_plus4;
+    assign branch_or_plus4 = ex_branch_taken ? ex_pc_branch_target : if_pc_plus_4;
+    
+    mux4to1 #(.N(32)) if_pc_mux (
+        .i_d0(if_pc_plus_4),
+        .i_d1(branch_or_plus4),
+        .i_d2(ex_jump_target),
+        .i_d3(ex_jump_target),
+        .i_sel(ex_pc_sel),
+        .o_y(if_pc_next)
+    );
+    
+    // Program Counter (with stall capability)
+    Program_Counter #(.N(N)) if_pc_reg (
         .i_clk(i_clk),
         .i_arst_n(i_arst_n),
-        .i_PC(pc_next),
-        .o_PC(pc_current)
+        .i_PC(stall_pc ? if_pc_current : if_pc_next),
+        .o_PC(if_pc_current)
     );
     
     // Instruction Memory
     Instruction_Mem #(
         .N(N),
         .DEPTH(IMEM_DEPTH)
-    ) M4 (
+    ) if_imem (
         .i_clk(i_clk),
         .i_arst_n(i_arst_n),
-        .i_addr(pc_current),
-        .o_inst(instruction)
+        .i_addr(if_pc_current),
+        .o_inst(if_instruction)
     );
+    
+    // ==========================================================================
+    // IF/ID Pipeline Register
+    // ==========================================================================
+    
+    IF_ID_Register #(.N(N)) if_id_reg (
+        .i_clk(i_clk),
+        .i_arst_n(i_arst_n),
+        .i_stall(stall_if_id),
+        .i_flush(flush_if_id),
+        .i_pc(if_pc_current),
+        .i_instruction(if_instruction),
+        .o_pc(id_pc),
+        .o_instruction(id_instruction)
+    );
+    
+    // ==========================================================================
+    // STAGE 2: INSTRUCTION DECODE (ID)
+    // ==========================================================================
+    
+    // Instruction field extraction
+    assign id_rs1_addr = id_instruction[19:15];
+    assign id_rs2_addr = id_instruction[24:20];
+    assign id_rd_addr  = id_instruction[11:7];
     
     // Control Unit
-    Control_Unit M5 (
-        .i_instruction(instruction),
-        .o_RegWrite(reg_write),
-        .o_MemRead(mem_read),
-        .o_MemWrite(mem_write),
-        .o_ImmSel(imm_sel),
-        .o_WBSel(wb_sel),
-        .o_PCSel(pc_sel),
-        .o_ALUSrc(alu_src),
-        .o_ALUASel(alu_a_sel),
-        .o_ALUCtrl(alu_ctrl),
-        .o_BranchEn(branch_en),
-        .o_BranchType(branch_type),
-        .o_MemType(mem_type),
-        .o_JAL(jal),
-        .o_JALR(jalr)
+    Control_Unit id_control (
+        .i_instruction(id_instruction),
+        .o_RegWrite(id_reg_write),
+        .o_MemRead(id_mem_read),
+        .o_MemWrite(id_mem_write),
+        .o_ImmSel(id_imm_sel),
+        .o_WBSel(id_wb_sel),
+        .o_PCSel(id_pc_sel),
+        .o_ALUSrc(id_alu_src),
+        .o_ALUASel(id_alu_a_sel),
+        .o_ALUCtrl(id_alu_ctrl),
+        .o_BranchEn(id_branch_en),
+        .o_BranchType(id_branch_type),
+        .o_MemType(id_mem_type),
+        .o_JAL(id_jal),
+        .o_JALR(id_jalr)
     );
     
-    // Register File
+    // Register File (write happens in WB stage)
     Reg_File #(
         .N(N),
         .DEPTH(REG_DEPTH)
-    ) M6 (
+    ) id_regfile (
         .i_clk(i_clk),
         .i_arst_n(i_arst_n),
-        .i_we(reg_write),
-        .i_raddr1(rs1_addr),
-        .i_raddr2(rs2_addr),
-        .i_waddr(rd_addr),
-        .i_wdata(rd_data),
-        .o_rdata1(rs1_data),
-        .o_rdata2(rs2_data)
+        .i_we(wb_reg_write),
+        .i_raddr1(id_rs1_addr),
+        .i_raddr2(id_rs2_addr),
+        .i_waddr(wb_rd_addr),
+        .i_wdata(wb_data),
+        .o_rdata1(id_rs1_data),
+        .o_rdata2(id_rs2_data)
     );
     
     // Immediate Generation
-    Imm_Gen #(.N(N)) M7 (
-        .i_inst(instruction),
-        .o_imm(immediate)
+    Imm_Gen #(.N(N)) id_immgen (
+        .i_inst(id_instruction),
+        .o_imm(id_immediate)
     );
     
-    // ALU operand selection
-    assign alu_operand_a = alu_a_sel ? pc_current : rs1_data;
-    assign alu_operand_b = alu_src ? immediate : rs2_data;
-	 
+    // ==========================================================================
+    // Hazard Detection Unit
+    // ==========================================================================
+    
+    Hazard_Detection_Unit hazard_unit (
+        .i_id_rs1_addr(id_rs1_addr),
+        .i_id_rs2_addr(id_rs2_addr),
+        .i_ex_rd_addr(ex_rd_addr),
+        .i_ex_mem_read(ex_mem_read),
+        .i_ex_reg_write(ex_reg_write),
+        .i_ex_branch_taken(ex_branch_taken),
+        .i_ex_jal(ex_jal),
+        .i_ex_jalr(ex_jalr),
+        .o_stall_pc(stall_pc),
+        .o_stall_if_id(stall_if_id),
+        .o_flush_id_ex(flush_id_ex),
+        .o_flush_if_id(flush_if_id)
+    );
+    
+    // ==========================================================================
+    // ID/EX Pipeline Register
+    // ==========================================================================
+    
+    ID_EX_Register #(.N(N)) id_ex_reg (
+        .i_clk(i_clk),
+        .i_arst_n(i_arst_n),
+        .i_flush(flush_id_ex),
+        .i_pc(id_pc),
+        .i_rs1_data(id_rs1_data),
+        .i_rs2_data(id_rs2_data),
+        .i_immediate(id_immediate),
+        .i_rs1_addr(id_rs1_addr),
+        .i_rs2_addr(id_rs2_addr),
+        .i_rd_addr(id_rd_addr),
+        .i_reg_write(id_reg_write),
+        .i_mem_read(id_mem_read),
+        .i_mem_write(id_mem_write),
+        .i_wb_sel(id_wb_sel),
+        .i_pc_sel(id_pc_sel),
+        .i_alu_src(id_alu_src),
+        .i_alu_a_sel(id_alu_a_sel),
+        .i_alu_ctrl(id_alu_ctrl),
+        .i_branch_en(id_branch_en),
+        .i_branch_type(id_branch_type),
+        .i_mem_type(id_mem_type),
+        .i_jal(id_jal),
+        .i_jalr(id_jalr),
+        .o_pc(ex_pc),
+        .o_rs1_data(ex_rs1_data),
+        .o_rs2_data(ex_rs2_data),
+        .o_immediate(ex_immediate),
+        .o_rs1_addr(ex_rs1_addr),
+        .o_rs2_addr(ex_rs2_addr),
+        .o_rd_addr(ex_rd_addr),
+        .o_reg_write(ex_reg_write),
+        .o_mem_read(ex_mem_read),
+        .o_mem_write(ex_mem_write),
+        .o_wb_sel(ex_wb_sel),
+        .o_pc_sel(ex_pc_sel),
+        .o_alu_src(ex_alu_src),
+        .o_alu_a_sel(ex_alu_a_sel),
+        .o_alu_ctrl(ex_alu_ctrl),
+        .o_branch_en(ex_branch_en),
+        .o_branch_type(ex_branch_type),
+        .o_mem_type(ex_mem_type),
+        .o_jal(ex_jal),
+        .o_jalr(ex_jalr)
+    );
+    
+    // ==========================================================================
+    // STAGE 3: EXECUTE (EX)
+    // ==========================================================================
+    
+    // Forwarding Unit
+    Forwarding_Unit forward_unit (
+        .i_ex_rs1_addr(ex_rs1_addr),
+        .i_ex_rs2_addr(ex_rs2_addr),
+        .i_mem_rd_addr(mem_rd_addr),
+        .i_mem_reg_write(mem_reg_write),
+        .i_wb_rd_addr(wb_rd_addr),
+        .i_wb_reg_write(wb_reg_write),
+        .o_forward_a(forward_a),
+        .o_forward_b(forward_b)
+    );
+    
+    // Forward rs1_data
+    mux3to1 #(.N(N)) ex_forward_a_mux (
+        .i_d0(ex_rs1_data),           // No forwarding
+        .i_d1(wb_data),                // Forward from WB
+        .i_d2(mem_alu_result),         // Forward from MEM
+        .i_sel(forward_a),
+        .o_y(ex_alu_operand_a_forwarded)
+    );
+    
+    // Forward rs2_data
+    mux3to1 #(.N(N)) ex_forward_b_mux (
+        .i_d0(ex_rs2_data),           // No forwarding
+        .i_d1(wb_data),                // Forward from WB
+        .i_d2(mem_alu_result),         // Forward from MEM
+        .i_sel(forward_b),
+        .o_y(ex_rs2_data_forwarded)
+    );
+    
+    // ALU operand A selection (PC or rs1)
+    assign ex_alu_operand_a = ex_alu_a_sel ? ex_pc : ex_alu_operand_a_forwarded;
+    
+    // ALU operand B selection (immediate or rs2)
+    assign ex_alu_operand_b = ex_alu_src ? ex_immediate : ex_rs2_data_forwarded;
     
     // ALU Unit
-    ALU_Unit #(.N(N)) M10 (
-        .i_operand_a(alu_operand_a),
-        .i_operand_b(alu_operand_b),
-        .i_alu_ctrl(alu_ctrl),
-        .o_alu_result(alu_result),
-        .o_zero_flag(alu_zero)
+    ALU_Unit #(.N(N)) ex_alu (
+        .i_operand_a(ex_alu_operand_a),
+        .i_operand_b(ex_alu_operand_b),
+        .i_alu_ctrl(ex_alu_ctrl),
+        .o_alu_result(ex_alu_result),
+        .o_zero_flag(ex_alu_zero)
+    );
+    
+    // Branch target calculation
+    adder_N_bit #(.N(N)) ex_branch_adder (
+        .a(ex_pc),
+        .b(ex_immediate),
+        .sum(ex_pc_branch_target)
     );
     
     // Branch Unit
-    Branch_Unit #(.N(N)) M11 (
-        .i_rs1_data(rs1_data),
-        .i_rs2_data(rs2_data),
-        .i_branch_type(branch_type),
-        .i_branch_enable(branch_en),
-        .o_branch_taken(branch_taken)
+    Branch_Unit #(.N(N)) ex_branch (
+        .i_rs1_data(ex_alu_operand_a_forwarded),
+        .i_rs2_data(ex_rs2_data_forwarded),
+        .i_branch_type(ex_branch_type),
+        .i_branch_enable(ex_branch_en),
+        .o_branch_taken(ex_branch_taken)
     );
     
     // Jump Unit
-    Jump_Unit #(.N(N)) M12 (
-        .i_pc(pc_current),
-        .i_rs1_data(rs1_data),
-        .i_immediate(immediate),
-        .i_jal(jal),
-        .i_jalr(jalr),
-        .o_jump_target(jump_target),
-        .o_return_addr(return_addr)
+    Jump_Unit #(.N(N)) ex_jump (
+        .i_pc(ex_pc),
+        .i_rs1_data(ex_alu_operand_a_forwarded),
+        .i_immediate(ex_immediate),
+        .i_jal(ex_jal),
+        .i_jalr(ex_jalr),
+        .o_jump_target(ex_jump_target),
+        .o_return_addr(ex_return_addr)
     );
     
-    // Memory address calculation
-    assign mem_addr = alu_result;
+    // ==========================================================================
+    // EX/MEM Pipeline Register
+    // ==========================================================================
+    
+    EX_MEM_Register #(.N(N)) ex_mem_reg (
+        .i_clk(i_clk),
+        .i_arst_n(i_arst_n),
+        .i_flush(1'b0),
+        .i_alu_result(ex_alu_result),
+        .i_rs2_data(ex_rs2_data_forwarded),
+        .i_pc_branch_target(ex_pc_branch_target),
+        .i_jump_target(ex_jump_target),
+        .i_return_addr(ex_return_addr),
+        .i_immediate(ex_immediate),
+        .i_rd_addr(ex_rd_addr),
+        .i_branch_taken(ex_branch_taken),
+        .i_reg_write(ex_reg_write),
+        .i_mem_read(ex_mem_read),
+        .i_mem_write(ex_mem_write),
+        .i_wb_sel(ex_wb_sel),
+        .i_mem_type(ex_mem_type),
+        .o_alu_result(mem_alu_result),
+        .o_rs2_data(mem_rs2_data),
+        .o_pc_branch_target(mem_pc_branch_target),
+        .o_jump_target(mem_jump_target),
+        .o_return_addr(mem_return_addr),
+        .o_immediate(mem_immediate),
+        .o_rd_addr(mem_rd_addr),
+        .o_branch_taken(mem_branch_taken),
+        .o_reg_write(mem_reg_write),
+        .o_mem_read(mem_mem_read),
+        .o_mem_write(mem_mem_write),
+        .o_wb_sel(mem_wb_sel),
+        .o_mem_type(mem_mem_type)
+    );
+    
+    // ==========================================================================
+    // STAGE 4: MEMORY ACCESS (MEM)
+    // ==========================================================================
+    
+    // Load/Store Unit
+    Load_Store_Unit #(.N(N)) mem_lsu (
+        .i_mem_type(mem_mem_type),
+        .i_mem_read(mem_mem_read),
+        .i_mem_write(mem_mem_write),
+        .i_byte_offset(mem_alu_result[1:0]),
+        .i_mem_read_data(mem_read_data),
+        .i_store_data(mem_rs2_data),
+        .o_load_data(mem_load_data),
+        .o_store_data(mem_store_data),
+        .o_byte_enable(mem_byte_enable)
+    );
     
     // Data Memory
     Data_Memory #(
         .N(N),
         .BYTES(DMEM_BYTES)
-    ) M13 (
-        .i_clk    (i_clk),
-        .i_arst_n (i_arst_n),
-        .i_we     (mem_write),
-        .i_re     (mem_read),
-        .i_addr   (mem_addr),     // địa chỉ byte từ ALU
-        .i_wdata  (store_data),   // dữ liệu đã được LSU sắp xếp đúng thứ tự byte (little-endian)
-        .i_wstrb  (byte_enable),  // byte-enable từ LSU (SB/SH/SW)
-        .o_rdata  (mem_read_data) // word 32-bit thô; LSU dùng mem_addr[1:0] để chọn byte/half & extend
-    );
-	 
-    // Load/Store Unit
-    Load_Store_Unit #(.N(N)) M14 (
-        .i_mem_type(mem_type),
-        .i_mem_read(mem_read),
-        .i_mem_write(mem_write),
-        .i_byte_offset(mem_addr[1:0]),
-        .i_mem_read_data(mem_read_data),
-        .i_store_data(rs2_data),
-        .o_load_data(load_data),
-        .o_store_data(store_data),
-        .o_byte_enable(byte_enable)
+    ) mem_dmem (
+        .i_clk(i_clk),
+        .i_arst_n(i_arst_n),
+        .i_we(mem_mem_write),
+        .i_re(mem_mem_read),
+        .i_addr(mem_alu_result),
+        .i_wdata(mem_store_data),
+        .i_wstrb(mem_byte_enable),
+        .o_rdata(mem_read_data)
     );
     
     // ==========================================================================
-    // Writeback Multiplexer
+    // MEM/WB Pipeline Register
     // ==========================================================================
-	 
-	 mux4to1 #(.N(N)) M15 (
-		  .i_d0(alu_result),   // 00 // WB_ALU - ALU result
-		  .i_d1(load_data),    // 01 // WB_MEM - Memory data (Load instructions)
-		  .i_d2(return_addr),  // 10 // WB_PC4 - PC + 4 (JAL/JALR return address)
-		  .i_d3(immediate),    // 11 // WB_IMM - Immediate (LUI direct load)
-		  .i_sel(wb_sel),
-		  .o_y(rd_data)
-		);
-
+    
+    MEM_WB_Register #(.N(N)) mem_wb_reg (
+        .i_clk(i_clk),
+        .i_arst_n(i_arst_n),
+        .i_alu_result(mem_alu_result),
+        .i_mem_read_data(mem_load_data),
+        .i_return_addr(mem_return_addr),
+        .i_immediate(mem_immediate),
+        .i_rd_addr(mem_rd_addr),
+        .i_reg_write(mem_reg_write),
+        .i_wb_sel(mem_wb_sel),
+        .o_alu_result(wb_alu_result),
+        .o_mem_read_data(wb_mem_read_data),
+        .o_return_addr(wb_return_addr),
+        .o_immediate(wb_immediate),
+        .o_rd_addr(wb_rd_addr),
+        .o_reg_write(wb_reg_write),
+        .o_wb_sel(wb_wb_sel)
+    );
     
     // ==========================================================================
-    // PC Next Logic
+    // STAGE 5: WRITE BACK (WB)
     // ==========================================================================
-	 
-	logic [31:0] branch_or_plus4; 
-	
-	assign branch_or_plus4 = branch_taken ? pc_branch_target : pc_plus_4;
-
-	// i_d0=PLUS4, i_d1=BRANCH/PLUS4, i_d2=JAL, i_d3=JALR
-	mux4to1 #(.N(32)) M16 (
-	  .i_d0(pc_plus_4),
-	  .i_d1(branch_or_plus4),
-	  .i_d2(jump_target),
-	  .i_d3(jump_target),
-	  .i_sel(pc_sel),
-	  .o_y(pc_next)
-	);
+    
+    // Writeback data selection
+    mux4to1 #(.N(N)) wb_mux (
+        .i_d0(wb_alu_result),      // WB_ALU - ALU result
+        .i_d1(wb_mem_read_data),   // WB_MEM - Memory data
+        .i_d2(wb_return_addr),     // WB_PC4 - Return address
+        .i_d3(wb_immediate),       // WB_IMM - Immediate (LUI)
+        .i_sel(wb_wb_sel),
+        .o_y(wb_data)
+    );
 
 endmodule
