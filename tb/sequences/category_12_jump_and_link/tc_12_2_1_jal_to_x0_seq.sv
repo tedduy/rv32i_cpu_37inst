@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 13.2.1 - JAL_TO_X0 Instruction
+// Sequence: TC 12.2.1 - JAL_TO_X0 Instruction
 // =============================================================================
 // Category: Jump & Link
 // Priority: HIGH
 // Description: JAL with x0 as dest
 // =============================================================================
 
-class tc_13_2_1_jal_to_x0_seq extends uvm_sequence #(rv32i_transaction);
+class tc_12_2_1_jal_to_x0_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_13_2_1_jal_to_x0_seq)
+    `uvm_object_utils(tc_12_2_1_jal_to_x0_seq)
     
-    function new(string name = "tc_13_2_1_jal_to_x0_seq");
+    function new(string name = "tc_12_2_1_jal_to_x0_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_13_2_1_jal_to_x0_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_13_2_1_jal_to_x0_seq
+endclass : tc_12_2_1_jal_to_x0_seq

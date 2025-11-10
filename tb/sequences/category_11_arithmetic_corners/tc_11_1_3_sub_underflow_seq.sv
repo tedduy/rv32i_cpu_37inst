@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 12.1.3 - SUB_UNDERFLOW Instruction
+// Sequence: TC 11.1.3 - SUB_UNDERFLOW Instruction
 // =============================================================================
 // Category: Arithmetic Corners
 // Priority: MEDIUM
 // Description: Subtraction underflow
 // =============================================================================
 
-class tc_12_1_3_sub_underflow_seq extends uvm_sequence #(rv32i_transaction);
+class tc_11_1_3_sub_underflow_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_12_1_3_sub_underflow_seq)
+    `uvm_object_utils(tc_11_1_3_sub_underflow_seq)
     
-    function new(string name = "tc_12_1_3_sub_underflow_seq");
+    function new(string name = "tc_11_1_3_sub_underflow_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_12_1_3_sub_underflow_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_12_1_3_sub_underflow_seq
+endclass : tc_11_1_3_sub_underflow_seq

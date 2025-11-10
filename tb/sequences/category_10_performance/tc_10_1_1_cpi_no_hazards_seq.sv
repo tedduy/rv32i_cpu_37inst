@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 11.1.1 - CPI_NO_HAZARDS Instruction
+// Sequence: TC 10.1.1 - CPI_NO_HAZARDS Instruction
 // =============================================================================
 // Category: Performance
 // Priority: LOW
 // Description: CPI with no hazards
 // =============================================================================
 
-class tc_11_1_1_cpi_no_hazards_seq extends uvm_sequence #(rv32i_transaction);
+class tc_10_1_1_cpi_no_hazards_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_11_1_1_cpi_no_hazards_seq)
+    `uvm_object_utils(tc_10_1_1_cpi_no_hazards_seq)
     
-    function new(string name = "tc_11_1_1_cpi_no_hazards_seq");
+    function new(string name = "tc_10_1_1_cpi_no_hazards_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_11_1_1_cpi_no_hazards_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_11_1_1_cpi_no_hazards_seq
+endclass : tc_10_1_1_cpi_no_hazards_seq

@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 14.1.3 - IMM_SIGN_EXT Instruction
+// Sequence: TC 13.1.3 - IMM_SIGN_EXT Instruction
 // =============================================================================
 // Category: Immediate Values
 // Priority: MEDIUM
 // Description: Immediate sign extension
 // =============================================================================
 
-class tc_14_1_3_imm_sign_ext_seq extends uvm_sequence #(rv32i_transaction);
+class tc_13_1_3_imm_sign_ext_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_14_1_3_imm_sign_ext_seq)
+    `uvm_object_utils(tc_13_1_3_imm_sign_ext_seq)
     
-    function new(string name = "tc_14_1_3_imm_sign_ext_seq");
+    function new(string name = "tc_13_1_3_imm_sign_ext_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_14_1_3_imm_sign_ext_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_14_1_3_imm_sign_ext_seq
+endclass : tc_13_1_3_imm_sign_ext_seq

@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 13.1.2 - JALR_RETURN_ADDR Instruction
+// Sequence: TC 12.1.2 - JALR_RETURN_ADDR Instruction
 // =============================================================================
 // Category: Jump & Link
 // Priority: HIGH
 // Description: JALR saves return address
 // =============================================================================
 
-class tc_13_1_2_jalr_return_addr_seq extends uvm_sequence #(rv32i_transaction);
+class tc_12_1_2_jalr_return_addr_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_13_1_2_jalr_return_addr_seq)
+    `uvm_object_utils(tc_12_1_2_jalr_return_addr_seq)
     
-    function new(string name = "tc_13_1_2_jalr_return_addr_seq");
+    function new(string name = "tc_12_1_2_jalr_return_addr_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_13_1_2_jalr_return_addr_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_13_1_2_jalr_return_addr_seq
+endclass : tc_12_1_2_jalr_return_addr_seq

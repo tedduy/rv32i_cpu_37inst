@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 15.1.1 - LONG_SEQUENCE Instruction
+// Sequence: TC 14.1.1 - LONG_SEQUENCE Instruction
 // =============================================================================
 // Category: Stress Tests
 // Priority: MEDIUM
 // Description: 100+ instructions
 // =============================================================================
 
-class tc_15_1_1_long_sequence_seq extends uvm_sequence #(rv32i_transaction);
+class tc_14_1_1_long_sequence_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_15_1_1_long_sequence_seq)
+    `uvm_object_utils(tc_14_1_1_long_sequence_seq)
     
-    function new(string name = "tc_15_1_1_long_sequence_seq");
+    function new(string name = "tc_14_1_1_long_sequence_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_15_1_1_long_sequence_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_15_1_1_long_sequence_seq
+endclass : tc_14_1_1_long_sequence_seq

@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 12.2.3 - SHIFT_EDGE_CASES Instruction
+// Sequence: TC 11.2.3 - SHIFT_EDGE_CASES Instruction
 // =============================================================================
 // Category: Arithmetic Corners
 // Priority: MEDIUM
 // Description: Shift boundary amounts
 // =============================================================================
 
-class tc_12_2_3_shift_edge_cases_seq extends uvm_sequence #(rv32i_transaction);
+class tc_11_2_3_shift_edge_cases_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_12_2_3_shift_edge_cases_seq)
+    `uvm_object_utils(tc_11_2_3_shift_edge_cases_seq)
     
-    function new(string name = "tc_12_2_3_shift_edge_cases_seq");
+    function new(string name = "tc_11_2_3_shift_edge_cases_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_12_2_3_shift_edge_cases_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_12_2_3_shift_edge_cases_seq
+endclass : tc_11_2_3_shift_edge_cases_seq

@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 10.3.3 - ALU_TO_STORE Instruction
+// Sequence: TC 9.3.3 - ALU_TO_STORE Instruction
 // =============================================================================
 // Category: Forwarding Paths
 // Priority: CRITICAL
 // Description: ALU result to store data
 // =============================================================================
 
-class tc_10_3_3_alu_to_store_seq extends uvm_sequence #(rv32i_transaction);
+class tc_9_3_3_alu_to_store_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_10_3_3_alu_to_store_seq)
+    `uvm_object_utils(tc_9_3_3_alu_to_store_seq)
     
-    function new(string name = "tc_10_3_3_alu_to_store_seq");
+    function new(string name = "tc_9_3_3_alu_to_store_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_10_3_3_alu_to_store_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_10_3_3_alu_to_store_seq
+endclass : tc_9_3_3_alu_to_store_seq

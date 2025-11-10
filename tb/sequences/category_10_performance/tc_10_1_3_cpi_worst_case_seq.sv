@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 11.1.3 - CPI_WORST_CASE Instruction
+// Sequence: TC 10.1.3 - CPI_WORST_CASE Instruction
 // =============================================================================
 // Category: Performance
 // Priority: LOW
 // Description: CPI worst case scenario
 // =============================================================================
 
-class tc_11_1_3_cpi_worst_case_seq extends uvm_sequence #(rv32i_transaction);
+class tc_10_1_3_cpi_worst_case_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_11_1_3_cpi_worst_case_seq)
+    `uvm_object_utils(tc_10_1_3_cpi_worst_case_seq)
     
-    function new(string name = "tc_11_1_3_cpi_worst_case_seq");
+    function new(string name = "tc_10_1_3_cpi_worst_case_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_11_1_3_cpi_worst_case_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_11_1_3_cpi_worst_case_seq
+endclass : tc_10_1_3_cpi_worst_case_seq

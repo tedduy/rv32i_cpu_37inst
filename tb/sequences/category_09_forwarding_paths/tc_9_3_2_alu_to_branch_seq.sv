@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 10.3.2 - ALU_TO_BRANCH Instruction
+// Sequence: TC 9.3.2 - ALU_TO_BRANCH Instruction
 // =============================================================================
 // Category: Forwarding Paths
 // Priority: CRITICAL
 // Description: ALU result to branch
 // =============================================================================
 
-class tc_10_3_2_alu_to_branch_seq extends uvm_sequence #(rv32i_transaction);
+class tc_9_3_2_alu_to_branch_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_10_3_2_alu_to_branch_seq)
+    `uvm_object_utils(tc_9_3_2_alu_to_branch_seq)
     
-    function new(string name = "tc_10_3_2_alu_to_branch_seq");
+    function new(string name = "tc_9_3_2_alu_to_branch_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_10_3_2_alu_to_branch_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_10_3_2_alu_to_branch_seq
+endclass : tc_9_3_2_alu_to_branch_seq

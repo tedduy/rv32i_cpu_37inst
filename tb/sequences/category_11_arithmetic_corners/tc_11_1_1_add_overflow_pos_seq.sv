@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 12.1.1 - ADD_OVERFLOW_POS Instruction
+// Sequence: TC 11.1.1 - ADD_OVERFLOW_POS Instruction
 // =============================================================================
 // Category: Arithmetic Corners
 // Priority: MEDIUM
 // Description: Positive overflow
 // =============================================================================
 
-class tc_12_1_1_add_overflow_pos_seq extends uvm_sequence #(rv32i_transaction);
+class tc_11_1_1_add_overflow_pos_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_12_1_1_add_overflow_pos_seq)
+    `uvm_object_utils(tc_11_1_1_add_overflow_pos_seq)
     
-    function new(string name = "tc_12_1_1_add_overflow_pos_seq");
+    function new(string name = "tc_11_1_1_add_overflow_pos_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_12_1_1_add_overflow_pos_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_12_1_1_add_overflow_pos_seq
+endclass : tc_11_1_1_add_overflow_pos_seq

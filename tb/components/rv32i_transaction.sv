@@ -32,7 +32,7 @@ class rv32i_transaction extends uvm_sequence_item;
     rand bit [31:0] pc_value;        // PC value when instruction executes
     
     // ==========================================================================
-    // Expected Results (from Spike golden reference)
+    // Expected Results (from golden reference)
     // ==========================================================================
     bit [31:0] expected_rd_value;    // Expected destination register value
     bit [31:0] expected_pc_next;     // Expected next PC
@@ -117,7 +117,7 @@ class rv32i_transaction extends uvm_sequence_item;
         s = {s, $sformatf("rs1_value: 0x%08h, rs2_value: 0x%08h\n", rs1_value, rs2_value)};
         
         if (compare_enable) begin
-            s = {s, $sformatf("\n--- Expected Results (Spike) ---\n")};
+            s = {s, $sformatf("\n--- Expected Results (Golden) ---\n")};
             s = {s, $sformatf("rd_value: 0x%08h, pc_next: 0x%08h\n", 
                              expected_rd_value, expected_pc_next)};
             if (expected_mem_write)

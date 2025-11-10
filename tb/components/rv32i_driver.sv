@@ -88,12 +88,12 @@ class rv32i_driver extends uvm_driver #(rv32i_transaction);
     // ==========================================================================
     task drive_transaction(rv32i_transaction tr);
         
-        // In a file-based Spike approach, we don't actually drive instruction
+        // In a file-based golden reference approach, we don't actually drive instruction
         // directly into DUT. Instead:
         // 1. Instruction memory is pre-loaded via test program
         // 2. Driver just controls reset and lets CPU run
         // 3. Monitor captures outputs
-        // 4. Scoreboard compares with Spike golden file
+        // 4. Scoreboard compares with golden reference file
         
         // For this implementation, we'll wait for the instruction to complete
         // by monitoring PC advancement

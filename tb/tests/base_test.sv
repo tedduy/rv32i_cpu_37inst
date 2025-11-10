@@ -20,8 +20,9 @@ class base_test extends uvm_test;
     // ==========================================================================
     // Configuration
     // ==========================================================================
-    string spike_log_file = "tests/golden/spike_trace.log";
+    string golden_log_file = "tests/golden/golden_trace.log";
     int    num_instructions = 10;  // Default number of instructions to verify
+    bit    enable_golden_check = 0; // Disable golden checking by default
     
     // ==========================================================================
     // Constructor
@@ -39,12 +40,19 @@ class base_test extends uvm_test;
         // Create environment
         env = rv32i_env::type_id::create("env", this);
         
-        // Set Spike log file in config DB
-        uvm_config_db#(string)::set(this, "env.scoreboard.spike", 
-                                    "spike_log_file", spike_log_file);
+        // Set golden checking enable/disable
+        uvm_config_db#(bit)::set(this, "env.scoreboard.golden", 
+                                 "enable_checking", enable_golden_check);
+        
+        // Set golden log file in config DB (only if enabled)
+        if (enable_golden_check) begin
+            uvm_config_db#(string)::set(this, "env.scoreboard.golden", 
+                                        "golden_log_file", golden_log_file);
+        end
         
         `uvm_info(get_type_name(), 
-                 $sformatf("Base test built with spike_log=%s", spike_log_file), 
+                 $sformatf("Base test built with golden_check=%0d, golden_log=%s", 
+                          enable_golden_check, golden_log_file), 
                  UVM_MEDIUM)
     endfunction
     
@@ -57,7 +65,7 @@ class base_test extends uvm_test;
         // Print test configuration
         `uvm_info(get_type_name(), "\n=== Test Configuration ===", UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("Test Name:           %s", get_name()), UVM_LOW)
-        `uvm_info(get_type_name(), $sformatf("Spike Log File:      %s", spike_log_file), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("Golden Log File:     %s", golden_log_file), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("Num Instructions:    %0d", num_instructions), UVM_LOW)
         `uvm_info(get_type_name(), "==========================\n", UVM_LOW)
     endfunction

@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 15.1.2 - DEEP_NESTING Instruction
+// Sequence: TC 14.1.2 - DEEP_NESTING Instruction
 // =============================================================================
 // Category: Stress Tests
 // Priority: MEDIUM
 // Description: Deeply nested branches
 // =============================================================================
 
-class tc_15_1_2_deep_nesting_seq extends uvm_sequence #(rv32i_transaction);
+class tc_14_1_2_deep_nesting_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_15_1_2_deep_nesting_seq)
+    `uvm_object_utils(tc_14_1_2_deep_nesting_seq)
     
-    function new(string name = "tc_15_1_2_deep_nesting_seq");
+    function new(string name = "tc_14_1_2_deep_nesting_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_15_1_2_deep_nesting_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_15_1_2_deep_nesting_seq
+endclass : tc_14_1_2_deep_nesting_seq

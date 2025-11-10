@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 10.1.2 - EX_TO_EX_RS2 Instruction
+// Sequence: TC 9.1.2 - EX_TO_EX_RS2 Instruction
 // =============================================================================
 // Category: Forwarding Paths
 // Priority: CRITICAL
 // Description: EX-EX forward to rs2
 // =============================================================================
 
-class tc_10_1_2_ex_to_ex_rs2_seq extends uvm_sequence #(rv32i_transaction);
+class tc_9_1_2_ex_to_ex_rs2_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_10_1_2_ex_to_ex_rs2_seq)
+    `uvm_object_utils(tc_9_1_2_ex_to_ex_rs2_seq)
     
-    function new(string name = "tc_10_1_2_ex_to_ex_rs2_seq");
+    function new(string name = "tc_9_1_2_ex_to_ex_rs2_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_10_1_2_ex_to_ex_rs2_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_10_1_2_ex_to_ex_rs2_seq
+endclass : tc_9_1_2_ex_to_ex_rs2_seq

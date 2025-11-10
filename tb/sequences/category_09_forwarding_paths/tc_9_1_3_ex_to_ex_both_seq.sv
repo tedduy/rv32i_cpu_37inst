@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 10.1.3 - EX_TO_EX_BOTH Instruction
+// Sequence: TC 9.1.3 - EX_TO_EX_BOTH Instruction
 // =============================================================================
 // Category: Forwarding Paths
 // Priority: CRITICAL
 // Description: EX-EX forward to both
 // =============================================================================
 
-class tc_10_1_3_ex_to_ex_both_seq extends uvm_sequence #(rv32i_transaction);
+class tc_9_1_3_ex_to_ex_both_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_10_1_3_ex_to_ex_both_seq)
+    `uvm_object_utils(tc_9_1_3_ex_to_ex_both_seq)
     
-    function new(string name = "tc_10_1_3_ex_to_ex_both_seq");
+    function new(string name = "tc_9_1_3_ex_to_ex_both_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_10_1_3_ex_to_ex_both_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_10_1_3_ex_to_ex_both_seq
+endclass : tc_9_1_3_ex_to_ex_both_seq

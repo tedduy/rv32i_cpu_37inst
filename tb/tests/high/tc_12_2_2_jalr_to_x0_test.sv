@@ -1,45 +1,45 @@
 // =============================================================================
-// Test Case 13.2.2: JALR_TO_X0
+// Test Case 12.2.2: JALR_TO_X0
 // =============================================================================
 // Category: Jump & Link
 // Priority: HIGH
 // Description: JALR with x0 as dest
 // =============================================================================
 
-class tc_13_2_2_jalr_to_x0_test extends base_test;
+class tc_12_2_2_jalr_to_x0_test extends base_test;
     
-    `uvm_component_utils(tc_13_2_2_jalr_to_x0_test)
+    `uvm_component_utils(tc_12_2_2_jalr_to_x0_test)
     
-    function new(string name = "tc_13_2_2_jalr_to_x0_test", uvm_component parent = null);
+    function new(string name = "tc_12_2_2_jalr_to_x0_test", uvm_component parent = null);
         super.new(name, parent);
     endfunction
     
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
         
-        // Override spike log file for this test
-        spike_log_file = "tests/golden/tc_13_2_2_jalr_to_x0_spike.log";
-        uvm_config_db#(string)::set(this, "env.scoreboard.spike", 
-                                    "spike_log_file", spike_log_file);
+        // Override golden log file for this test
+        golden_log_file = "tests/golden/tc_12_2_2_jalr_to_x0_golden.log";
+        uvm_config_db#(string)::set(this, "env.scoreboard.golden", 
+                                    "golden_log_file", golden_log_file);
     endfunction
     
     task run_phase(uvm_phase phase);
-        tc_13_2_2_jalr_to_x0_seq seq;
+        tc_12_2_2_jalr_to_x0_seq seq;
         
         phase.raise_objection(this);
         
-        `uvm_info(get_type_name(), "\n=== Starting TC 13.2.2: JALR_TO_X0 ===", UVM_LOW)
+        `uvm_info(get_type_name(), "\n=== Starting TC 12.2.2: JALR_TO_X0 ===", UVM_LOW)
         
         // Create and start sequence
-        seq = tc_13_2_2_jalr_to_x0_seq::type_id::create("seq");
+        seq = tc_12_2_2_jalr_to_x0_seq::type_id::create("seq");
         seq.start(env.agent.sequencer);
         
         // Wait for completion
         #1000;
         
-        `uvm_info(get_type_name(), "=== TC 13.2.2: JALR_TO_X0 Complete ===\n", UVM_LOW)
+        `uvm_info(get_type_name(), "=== TC 12.2.2: JALR_TO_X0 Complete ===\n", UVM_LOW)
         
         phase.drop_objection(this);
     endtask
 
-endclass : tc_13_2_2_jalr_to_x0_test
+endclass : tc_12_2_2_jalr_to_x0_test

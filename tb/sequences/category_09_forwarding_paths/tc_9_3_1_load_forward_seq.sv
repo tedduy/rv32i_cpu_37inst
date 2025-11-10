@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 10.3.1 - LOAD_FORWARD Instruction
+// Sequence: TC 9.3.1 - LOAD_FORWARD Instruction
 // =============================================================================
 // Category: Forwarding Paths
 // Priority: CRITICAL
 // Description: Load result forwarding
 // =============================================================================
 
-class tc_10_3_1_load_forward_seq extends uvm_sequence #(rv32i_transaction);
+class tc_9_3_1_load_forward_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_10_3_1_load_forward_seq)
+    `uvm_object_utils(tc_9_3_1_load_forward_seq)
     
-    function new(string name = "tc_10_3_1_load_forward_seq");
+    function new(string name = "tc_9_3_1_load_forward_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_10_3_1_load_forward_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_10_3_1_load_forward_seq
+endclass : tc_9_3_1_load_forward_seq

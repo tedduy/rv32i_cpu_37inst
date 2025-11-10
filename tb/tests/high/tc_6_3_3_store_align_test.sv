@@ -17,10 +17,10 @@ class tc_6_3_3_store_align_test extends base_test;
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
         
-        // Override spike log file for this test
-        spike_log_file = "tests/golden/tc_6_3_3_store_align_spike.log";
-        uvm_config_db#(string)::set(this, "env.scoreboard.spike", 
-                                    "spike_log_file", spike_log_file);
+        // Override golden log file for this test
+        golden_log_file = "tests/golden/tc_6_3_3_store_align_golden.log";
+        uvm_config_db#(string)::set(this, "env.scoreboard.golden", 
+                                    "golden_log_file", golden_log_file);
     endfunction
     
     task run_phase(uvm_phase phase);

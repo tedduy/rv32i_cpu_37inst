@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 15.1.3 - MAX_DEPENDENCIES Instruction
+// Sequence: TC 14.1.3 - MAX_DEPENDENCIES Instruction
 // =============================================================================
 // Category: Stress Tests
 // Priority: MEDIUM
 // Description: Maximum dependency chains
 // =============================================================================
 
-class tc_15_1_3_max_dependencies_seq extends uvm_sequence #(rv32i_transaction);
+class tc_14_1_3_max_dependencies_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_15_1_3_max_dependencies_seq)
+    `uvm_object_utils(tc_14_1_3_max_dependencies_seq)
     
-    function new(string name = "tc_15_1_3_max_dependencies_seq");
+    function new(string name = "tc_14_1_3_max_dependencies_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_15_1_3_max_dependencies_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_15_1_3_max_dependencies_seq
+endclass : tc_14_1_3_max_dependencies_seq

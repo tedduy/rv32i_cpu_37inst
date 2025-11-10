@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 10.2.1 - MEM_TO_EX_RS1 Instruction
+// Sequence: TC 9.2.1 - MEM_TO_EX_RS1 Instruction
 // =============================================================================
 // Category: Forwarding Paths
 // Priority: CRITICAL
 // Description: MEM-EX forward to rs1
 // =============================================================================
 
-class tc_10_2_1_mem_to_ex_rs1_seq extends uvm_sequence #(rv32i_transaction);
+class tc_9_2_1_mem_to_ex_rs1_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_10_2_1_mem_to_ex_rs1_seq)
+    `uvm_object_utils(tc_9_2_1_mem_to_ex_rs1_seq)
     
-    function new(string name = "tc_10_2_1_mem_to_ex_rs1_seq");
+    function new(string name = "tc_9_2_1_mem_to_ex_rs1_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_10_2_1_mem_to_ex_rs1_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_10_2_1_mem_to_ex_rs1_seq
+endclass : tc_9_2_1_mem_to_ex_rs1_seq

@@ -1,7 +1,10 @@
 # ============================================================
 # RV32I CPU Project - Git Ignore
 # ============================================================
-
+*.vstf
+transcript
+/logs/
+*.old
 # Keep source files and documentation
 !rtl/
 !tb/

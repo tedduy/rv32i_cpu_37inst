@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 14.1.1 - IMM_12BIT_MAX Instruction
+// Sequence: TC 13.1.1 - IMM_12BIT_MAX Instruction
 // =============================================================================
 // Category: Immediate Values
 // Priority: MEDIUM
 // Description: 12-bit immediate max
 // =============================================================================
 
-class tc_14_1_1_imm_12bit_max_seq extends uvm_sequence #(rv32i_transaction);
+class tc_13_1_1_imm_12bit_max_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_14_1_1_imm_12bit_max_seq)
+    `uvm_object_utils(tc_13_1_1_imm_12bit_max_seq)
     
-    function new(string name = "tc_14_1_1_imm_12bit_max_seq");
+    function new(string name = "tc_13_1_1_imm_12bit_max_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_14_1_1_imm_12bit_max_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_14_1_1_imm_12bit_max_seq
+endclass : tc_13_1_1_imm_12bit_max_seq

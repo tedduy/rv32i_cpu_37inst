@@ -1,16 +1,16 @@
 // =============================================================================
-// Sequence: TC 12.1.2 - ADD_OVERFLOW_NEG Instruction
+// Sequence: TC 11.1.2 - ADD_OVERFLOW_NEG Instruction
 // =============================================================================
 // Category: Arithmetic Corners
 // Priority: MEDIUM
 // Description: Negative overflow
 // =============================================================================
 
-class tc_12_1_2_add_overflow_neg_seq extends uvm_sequence #(rv32i_transaction);
+class tc_11_1_2_add_overflow_neg_seq extends uvm_sequence #(rv32i_transaction);
     
-    `uvm_object_utils(tc_12_1_2_add_overflow_neg_seq)
+    `uvm_object_utils(tc_11_1_2_add_overflow_neg_seq)
     
-    function new(string name = "tc_12_1_2_add_overflow_neg_seq");
+    function new(string name = "tc_11_1_2_add_overflow_neg_seq");
         super.new(name);
     endfunction
     
@@ -41,4 +41,4 @@ class tc_12_1_2_add_overflow_neg_seq extends uvm_sequence #(rv32i_transaction);
         
     endtask
 
-endclass : tc_12_1_2_add_overflow_neg_seq
+endclass : tc_11_1_2_add_overflow_neg_seq
