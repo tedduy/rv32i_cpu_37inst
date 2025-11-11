@@ -30,7 +30,8 @@ NORMAL_LOG_DIR = $(LOG_DIR)/normal
 COMPILE_FILE = compile.f
 
 # UVM Home (adjust based on your QuestaSim installation)
-UVM_HOME ?= C:/questasim64_2024.1/verilog_src/uvm-1.1d
+#UVM_HOME ?= C:/questasim64_2024.1/verilog_src/uvm-1.1d
+UVM_HOME ?= /home/buuduy/questasim/verilog_src/uvm-1.1d
 
 # Compilation flags
 VLOG_FLAGS = -sv
@@ -188,28 +189,28 @@ $(WORK_DIR):
 	@echo ""
 
 # Compile RTL and testbench using compile.f
+# Combine UVM package and design file compilation into a single ordered
+# vlog invocation to avoid duplicated compilation order issues and to
+# ensure the UVM package is available before files that import it.
 compile: $(WORK_DIR)
 	@echo "==================================================================="
 	@echo "  Compiling RV32I CPU with Package Structure"
 	@echo "==================================================================="
-	@echo "[Makefile] Step 1: Compiling UVM library..."
-	@$(VLOG) $(VLOG_FLAGS) +incdir+$(UVM_HOME)/src $(UVM_HOME)/src/uvm_pkg.sv 2>&1 | tee $(LOG_DIR)/compile_uvm.log
-	@echo ""
-	@echo "[Makefile] Step 2: Compiling design files..."
+	@echo "[Makefile] Compiling UVM package + design files (single step)..."
 	@echo "[Makefile] Using compilation file: $(COMPILE_FILE)"
 	@echo "[Makefile] Work library: $(WORK_DIR)"
 	@echo ""
-	@$(VLOG) $(VLOG_FLAGS) +incdir+$(UVM_HOME)/src -f $(COMPILE_FILE) 2>&1 | tee $(LOG_DIR)/compile.log
-	@echo ""
-	@if [ $$? -eq 0 ]; then \
-		echo "===================================================================";\
-		echo "  ✓ Compilation Successful!";\
-		echo "===================================================================";\
+	@bash -c 'set -o pipefail; $(VLOG) $(VLOG_FLAGS) +incdir+$(UVM_HOME)/src $(UVM_HOME)/src/uvm_pkg.sv -f $(COMPILE_FILE) 2>&1 | tee $(LOG_DIR)/compile.log'
+	@rc=$$?; \
+	if [ $$rc -eq 0 ]; then \
+		echo "==================================================================="; \
+		echo "  ✓ Compilation Successful!"; \
+		echo "==================================================================="; \
 	else \
-		echo "===================================================================";\
-		echo "  ✗ Compilation Failed! Check $(LOG_DIR)/compile.log";\
-		echo "===================================================================";\
-		exit 1; \
+		echo "==================================================================="; \
+		echo "  ✗ Compilation Failed! Check $(LOG_DIR)/compile.log"; \
+		echo "==================================================================="; \
+		exit $$rc; \
 	fi
 	@echo ""
 

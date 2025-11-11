@@ -5,6 +5,8 @@
 transcript
 /logs/
 *.old
+*.xml
+/report/
 # Keep source files and documentation
 !rtl/
 !tb/
