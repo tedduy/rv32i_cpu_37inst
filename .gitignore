@@ -11,6 +11,7 @@
 !Makefile
 !.gitignore
 
+
 # Keep all SystemVerilog files
 !**/*.sv
 !**/*.svh
@@ -22,8 +23,11 @@
 !sim/scripts/*.sh
 !sim/scripts/*.f
 !sim/scripts/*.tcl
-
-/docs/
+/.vscode/
+/logs/
+/work/
+sim/transcript
+#/docs/
 # ============================================================
 # Ignore all build artifacts and generated files
 # ============================================================
