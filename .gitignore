@@ -27,6 +27,41 @@
 /logs/
 /work/
 sim/transcript
+
+# ============================================================
+# FPGA - Quartus Generated Files (Keep source, ignore build)
+# ============================================================
+# Keep FPGA source files
+!fpga/
+!fpga/*.sv
+!fpga/*.sdc
+!fpga/*.tcl
+!fpga/*.qpf
+!fpga/*.qsf
+!fpga/*.md
+
+# Ignore Quartus generated folders
+fpga/db/
+fpga/incremental_db/
+fpga/output_files/
+fpga/simulation/
+fpga/.qsys_edit/
+fpga/c5_pin_model_dump.txt
+fpga/greybox_tmp/
+fpga/hc_output/
+fpga/reconfig_mif/
+fpga/timing/
+fpga/*.rpt
+fpga/*.summary
+fpga/*.smsg
+fpga/*.done
+fpga/*.qws
+fpga/*.sld
+fpga/*.jdi
+fpga/*.pin
+fpga/*.sof
+fpga/*.pof
+fpga/*.jic
 #/docs/
 # ============================================================
 # Ignore all build artifacts and generated files
